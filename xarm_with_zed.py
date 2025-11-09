@@ -50,12 +50,6 @@ CHECK_PERIOD         = 0.03    # seconds
 DEBOUNCE_COUNT       = 4       # number of consecutive triggers to confirm
 ALLOW_TRIGGER_AFTER  = 0.5   # seconds to wait before allowing trigger
 
-# ------------------ Utility Functions ------------------
-def parse_result(res):
-    if isinstance(res, tuple) and len(res) == 2: 
-        return res
-    return 0, res
-
 # ------------------ xArm Control ------------------
 def recover(arm):
     arm.clean_error()
@@ -77,13 +71,15 @@ def gripper_close(arm):
     arm.set_gripper_position(CLOSE_POS, wait=True)
 
 def read_ft_wrench(arm):
+    """Safe FT read, returns (code, [Fx,Fy,Fz,Tx,Ty,Tz]) or (1,None)"""
     try:
-        res = arm.get_ft_sensor_data()
-        code, data = parse_result(res)
+        code, data = arm.get_ft_sensor_data()
         if code == 0 and data and len(data) >= 6:
             return 0, data
-    except: pass
+    except Exception:
+        pass
     return 1, None
+
 
 def detect_pull_then_release(arm):
     print("[INFO] Waiting for pull trigger (FT mode)...")
