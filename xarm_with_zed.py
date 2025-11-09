@@ -52,9 +52,11 @@ ALLOW_TRIGGER_AFTER  = 0.5   # seconds to wait before allowing trigger
 
 # ------------------ Utility Functions ------------------
 def parse_result(res):
-    if isinstance(res, tuple) and len(res) == 2: return res
+    if isinstance(res, tuple) and len(res) == 2: 
+        return res
     return 0, res
-def norm3(v): return float(np.linalg.norm(v))
+def norm3(v): 
+    return float(np.linalg.norm(v))
 def clamp_xyz(x, y, z):
     x = float(np.clip(x, 50, 700))
     y = float(np.clip(y, -400, 400))
@@ -217,9 +219,7 @@ def detect_left_hand_stable_then_map_to_P2():
                             p_base_m = R_cb @ ema + t_cb
                             x_mm, y_mm, z_mm = 1000 * p_base_m[0], 1000 * p_base_m[1], 1000 * p_base_m[2]
                             # Clamp within safe ranges
-                            x_mm = float(np.clip(x_mm, 50, 700))
-                            y_mm = float(np.clip(y_mm, -400, 400))
-                            z_mm = float(np.clip(z_mm, SAFE_Z_MIN, SAFE_Z_MAX))
+                            x_mm, y_mm, z_mm = clamp_xyz(x_mm, y_mm, z_mm)
                             P2 = dict(x=x_mm, y=y_mm, z=z_mm, **P2_ORI)
                             print(f"→ converted to base frame P2={P2}")
                             return P2
