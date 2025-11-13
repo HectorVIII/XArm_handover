@@ -23,20 +23,22 @@ OPEN_POS   = 850    # 85mm
 CLOSE_POS  = 50
 
 # Poses (mm/deg)
-P0 = dict(x=629.3, y=-29.1, z=96.6, roll=178.2, pitch=-0.8, yaw=6.8)    # above tool
-P1 = dict(x=632.0, y=-29.1, z=61.0,  roll=178.2, pitch=-0.8, yaw=6.8)   # grip tool
+P0 = dict(x=629.3, y=-29.1, z=36.6, roll=178.2, pitch=-0.8, yaw=6.8)    # above tool
+P1 = dict(x=632.0, y=-29.1, z=1.0,  roll=178.2, pitch=-0.8, yaw=6.8)   # grip tool
 P2_ORI = dict(roll=177.0, pitch=-8.7, yaw=96.4) # P2 is the detected position by camera, orientation fixed
-SAFE_Z_MIN, SAFE_Z_MAX = 60.0, 600.0
+SAFE_Z_MIN, SAFE_Z_MAX = 0.0, 600.0
 APPROACH_Z_UP = 50.0    # approach height before/after P2
 
 # ================= Calibration Extrinsics (m) =================
-R_cb = np.array([
+R_cb = np.array( [[0.14401772498071977, -0.37152242415526016, 0.9171859044060677], [0.9895153863357063, 0.06424884057811589, -0.1293498615742083], [-0.010871756816483053, 0.9261982373305225, 0.3768801269230795]] )
+t_cb = np.array( [1.4735924130368008, 0.4533308765337746, 0.38943522249067103] )
+"""R_cb = np.array([
     [ 0.00671984, -0.36547256,  0.93079786],
     [ 0.99966612, -0.02076919, -0.01537194],
     [ 0.02494994,  0.93059037,  0.36521097]
 ])  # Rotation from camera to base
 
-t_cb = np.array([1.44587977, 0.37286003, 0.32676220])   # Translation from camera to base
+t_cb = np.array([1.44587977, 0.37286003, 0.32676220])   # Translation from camera to base"""
 
 # ================= Left Hand Detection Parameters =================
 CONF_THR = 0.60          # Confidence threshold
@@ -51,6 +53,7 @@ DEBOUNCE_COUNT       = 4       # number of consecutive triggers to confirm
 ALLOW_TRIGGER_AFTER  = 0.5   # seconds to wait before allowing trigger
 
 # ------------------ xArm Control ------------------
+# Recover from error/warn states
 def recover(arm):
     arm.clean_error()
     arm.clean_warn()
@@ -58,11 +61,15 @@ def recover(arm):
     arm.set_mode(0)
     arm.set_state(0)
     time.sleep(0.2)
+
+# Move to pose   
 def move(arm, pose, speed=MOVE_SPEED, acc=MOVE_ACC):
     return arm.set_position(
         x=pose["x"], y=pose["y"], z=pose["z"],
         roll=pose["roll"], pitch=pose["pitch"], yaw=pose["yaw"],
         speed=speed, mvacc=acc, wait=True)
+
+# Gripper control
 def gripper_open(arm):
     arm.set_gripper_speed(GRIPPER_SPEED)
     arm.set_gripper_position(OPEN_POS, wait=True)
@@ -70,6 +77,7 @@ def gripper_close(arm):
     arm.set_gripper_speed(GRIPPER_SPEED)
     arm.set_gripper_position(CLOSE_POS, wait=True)
 
+# FT read with error handling
 def read_ft_wrench(arm):
     """Safe FT read, returns (code, [Fx,Fy,Fz,Tx,Ty,Tz]) or (1,None)"""
     try:
@@ -77,7 +85,7 @@ def read_ft_wrench(arm):
         if code == 0 and data and len(data) >= 6:
             return 0, data
     except Exception:
-        pass
+        pass    # ignore
     return 1, None
 
 
