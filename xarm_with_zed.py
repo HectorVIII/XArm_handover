@@ -100,10 +100,8 @@ def detect_pull_then_release(arm):
     except Exception as e:
         print(f"[WARN] Failed to enable/zero FT: {e}")
 
-    # Allow settle time after reaching target
-    t0 = time.time()
-    while time.time() - t0 < ALLOW_TRIGGER_AFTER:
-        time.sleep(0.01)
+    # Wait before allowing trigger
+    time.sleep(ALLOW_TRIGGER_AFTER)
 
     hits = 0
     while True:
