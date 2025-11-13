@@ -113,12 +113,7 @@ def detect_pull_then_release(arm):
             continue
 
         Fx, Fy, Fz = wrench[:3]
-        # NOTE: Units are assumed in Newtons; if your SDK returns N*mm for torque,
-        # force should still be N. If values are strangely large, print and verify.
         F_total = (Fx*Fx + Fy*Fy + Fz*Fz) ** 0.5
-
-        # Debug print (optional):
-        # print(f"[FT] |F|={F_total:.2f} N (Fx={Fx:.2f}, Fy={Fy:.2f}, Fz={Fz:.2f}) hits={hits}")
 
         if F_total >= FT_FORCE_RELEASE_N:
             hits += 1
@@ -276,7 +271,7 @@ def main():
                                  speed=120, mvacc=4000, wait=True)
                 recover(arm); move(arm, P2_UP, speed=160, acc=5000)
 
-        print("⬅️ 回 P0"); ret = move(arm, P0)
+        print("Go back to P0"); ret = move(arm, P0)
         if ret != 0:
             print(f"Return to P0 failed (code={ret}), fallback via lift")
             code, cur = arm.get_position(is_radian=False)
