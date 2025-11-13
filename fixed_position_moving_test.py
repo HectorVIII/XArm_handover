@@ -19,7 +19,7 @@ arm.set_state(0)  # 0 -> Ready
 time.sleep(1)
 
 # move to fixed position
-arm.set_position(x=141.3, y=583.5, z=50.4, roll=177, pitch=-8.7, yaw=96.4, speed=100, wait=True)
+arm.set_position(x=141.3, y=583.5, z=70, roll=177, pitch=-8.7, yaw=96.4, speed=100, wait=True)
 print("position done")
 
 #joint_angles_1 = [55.9, 47.8, 22.8, 82.7, -31, 31.5, 0]  
